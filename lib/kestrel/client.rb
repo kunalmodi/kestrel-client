@@ -65,7 +65,7 @@ module Kestrel
     end
 
     def set(key, value, ttl=0, raw=false)
-      with_retries { @write_client.set key, value, ttl, !raw }
+      with_retries { @write_client.set key, value, ttl, raw }
       true
     end
 
@@ -102,7 +102,7 @@ module Kestrel
       val =
         begin
           shuffle_if_necessary! key
-          @read_client.get key + commands, !raw
+          @read_client.get key + commands, raw
         rescue *RECOVERABLE_ERRORS
           # we can't tell the difference between a server being down
           # and an empty queue, so just return nil. our sticky server
