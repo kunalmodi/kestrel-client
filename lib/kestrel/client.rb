@@ -67,8 +67,6 @@ module Kestrel
     def set(key, value, ttl=0, raw=false)
       with_retries { @write_client.set key, value, ttl, !raw }
       true
-    rescue MemCache::MemCacheError
-      false
     end
 
     # This provides the necessary semantic to support transactionality
