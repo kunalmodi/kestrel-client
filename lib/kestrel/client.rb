@@ -26,7 +26,7 @@ module Kestrel
     # Exceptions which are connection failures we retry after
     # memcache-client doesn't given different error types, so we'll just
     # leave this empty for now
-    RECOVERABLE_ERRORS = []
+    RECOVERABLE_ERRORS = [MemCache::MemCacheError]
 
     extend Forwardable
     include StatsHelper
