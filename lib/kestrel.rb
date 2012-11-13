@@ -1,6 +1,6 @@
 require 'yaml'
 require 'socket'
-require 'memcached'
+require 'memcache'
 
 require 'kestrel/client'
 

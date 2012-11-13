@@ -24,21 +24,9 @@ module Kestrel
     }.freeze
 
     # Exceptions which are connection failures we retry after
-    RECOVERABLE_ERRORS = [
-      Memcached::ServerIsMarkedDead,
-      Memcached::ATimeoutOccurred,
-      Memcached::ConnectionBindFailure,
-      Memcached::ConnectionFailure,
-      Memcached::ConnectionSocketCreateFailure,
-      Memcached::Failure,
-      Memcached::MemoryAllocationFailure,
-      Memcached::ReadFailure,
-      Memcached::ServerError,
-      Memcached::SystemError,
-      Memcached::UnknownReadFailure,
-      Memcached::WriteFailure,
-      Memcached::NotFound
-    ]
+    # memcache-client doesn't given different error types, so we'll just
+    # leave this empty for now
+    RECOVERABLE_ERRORS = []
 
     extend Forwardable
     include StatsHelper
@@ -68,19 +56,18 @@ module Kestrel
       self.options  = opts
 
       @server_count = self.servers.size # Minor optimization.
-      @read_client  = Memcached.new(self.servers[rand(@server_count)], opts)
-      @write_client = Memcached.new(self.servers[rand(@server_count)], opts)
+      @read_client  = MemCache.new(self.servers[rand(@server_count)], opts)
+      @write_client = MemCache.new(self.servers[rand(@server_count)], opts)
     end
 
     def delete(key, expiry=0)
       with_retries { @write_client.delete key }
-    rescue Memcached::NotFound, Memcached::ServerEnd
     end
 
     def set(key, value, ttl=0, raw=false)
       with_retries { @write_client.set key, value, ttl, !raw }
       true
-    rescue Memcached::NotStored
+    rescue MemCache::MemCacheError
       false
     end
 
